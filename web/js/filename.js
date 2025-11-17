@@ -30,14 +30,16 @@ app.registerExtension({
                 patchWorkflowRename(app);
                 
                 const activeWorkflow = app.extensionManager?.workflow?.activeWorkflow;
-                let filename = activeWorkflow?.fullFilename?.replace(/\//g, '_') || "untitled";
+                let fullPath = activeWorkflow?.fullFilename || "untitled";
+                let filename = fullPath.split('/').pop();
                 let widget = this.widgets?.find(w => w.name === "workflow_name");
                 if (widget) {
                     widget.value = filename;
                 }
                 
                 api.addEventListener('promptQueued', () => {
-                    filename = app.extensionManager.workflow.activeWorkflow?.fullFilename?.replace(/\//g, '_') || "untitled";
+                    fullPath = app.extensionManager.workflow.activeWorkflow?.fullFilename || "untitled";
+                    filename = fullPath.split('/').pop();
                     widget.value = filename;
                 });
             };
@@ -60,7 +62,7 @@ function patchWorkflowRename(app) {
         activeWorkflow.rename = async function(newPath) {
             const result = await originalRename(newPath);
             
-            const newFilename = newPath.replace(/\//g, '_');
+            const newFilename = newPath.split('/').pop();
             
             workflowNameNodes.forEach(node => {
                 const w = node.widgets?.find(w => w.name === "workflow_name");
